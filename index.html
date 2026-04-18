@@ -1,1 +1,280 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+  width: 100%;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  
+  perspective: 700px;
+  
+  color: white;
+  font-family: sans-serif;
+  
+  overflow: hidden;
+  
+  background: url("bg.jpg") center/cover no-repeat;
+  position: relative;
+  
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+    .card, button {
+      position: relative;
+      z-index: 1;
+    }
 
+    .card {
+      transition: transform 0.05s linear;
+will-change: transform;
+  width: 100%;
+  border-radius: 20px;
+  
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+  transform-style: preserve-3d;
+  position: relative;
+transform-style: preserve-3d;
+  transform-origin: center;
+}
+    img {
+      width: 100%;
+      border-radius: 20px;
+    }
+
+    .text {
+      position: absolute;
+      top: 20px;
+      width: 100%;
+      text-align: center;
+      font-size: 28px;
+      font-weight: bold;
+      text-shadow: 0 0 10px black;
+      opacity: 0;
+      transform: translateX(-30px);
+      transition: 0.6s ease;
+  left: 0;
+  right: 0;
+  transform: translateZ(40px); /* 🔥 3D effekt fix */
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 12px 28px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+    }
+
+    .confetti {
+      position: absolute;
+      top: -20px;
+      font-size: 24px;
+      animation: fall linear forwards;
+    }
+
+    @keyframes fall {
+      to {
+        transform: translateY(110vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <div class="text" id="textBox"></div>
+<div class="card" id="card">
+  <img id="img" src="ftpxs.png">
+</div>
+
+<button id="startBtn">Start</button>
+
+<audio id="music" src="yasmuzik.mp3"></audio>
+
+<script>
+const img = document.getElementById("img");
+const card = document.getElementById("card");
+const btn = document.getElementById("startBtn");
+const music = document.getElementById("music");
+const textBox = document.getElementById("textBox");
+
+const images = ["ftpxs1.png"];
+let index = 0;
+
+let smoothX = 0;
+let smoothY = 0;
+
+let lastX, lastY, lastZ;
+let lastTime = 0;
+
+const lines = [
+  "🎉 Yeni yaşın uğurla gəlsin, Ləman! 🎂",
+  "Bu gün sənin günündür — hər şey daha parlaq 💫",
+  "Arzu et, gül, əylən… 🚀",
+  " telefonu silkələ 😄",
+  "Happy Birthday! 🖤"
+];
+
+let i = 0;
+
+// clamp
+function clamp(v, min, max) {
+  return Math.max(min, Math.min(max, v));
+}
+
+// emoji confetti
+function createConfetti() {
+  const emojis = ["🎈", "💖", "✨", "🎉"];
+
+  for (let i = 0; i < 40; i++) {
+    let c = document.createElement("div");
+    c.className = "confetti";
+    c.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+    c.style.left = Math.random() * 100 + "vw";
+    c.style.fontSize = (16 + Math.random() * 20) + "px";
+    c.style.animationDuration = (2 + Math.random() * 3) + "s";
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 5000);
+  }
+}
+
+// text system
+function showText() {
+  if (i >= lines.length) return;
+
+  textBox.style.opacity = 0;
+  textBox.style.transform = "translateX(-30px)";
+
+  setTimeout(() => {
+    textBox.innerText = lines[i];
+    textBox.style.opacity = 1;
+    textBox.style.transform = "translateX(0)";
+    i++;
+    setTimeout(showText, 2500);
+  }, 400);
+}
+
+// sensors
+function startSensors() {
+  
+  music.play();
+  btn.style.display = "none";
+  
+  showText();
+  
+  // 🔥 calibration (ən vacib hissə)
+  let baseBeta = null;
+  let baseGamma = null;
+  
+window.addEventListener("deviceorientation", (e) => {
+  let beta = e.beta;
+  let gamma = e.gamma;
+  
+  if (beta === null || gamma === null) return;
+  
+  if (baseBeta === null) {
+    baseBeta = beta;
+    baseGamma = gamma;
+  }
+  
+  let maxTilt = 25;
+  
+  let x, y;
+  
+  // 🔥 MAIN FIX: orientation detection
+  if (window.innerWidth > window.innerHeight) {
+    // 📱 horizontal (landscape)
+    x = clamp(gamma - baseGamma, -maxTilt, maxTilt);
+    y = clamp(beta - baseBeta, -maxTilt, maxTilt);
+  } else {
+    // 📱 vertical (portrait)
+    x = clamp(beta - baseBeta, -maxTilt, maxTilt);
+    y = clamp(gamma - baseGamma, -maxTilt, maxTilt);
+  }
+  
+  smoothX = smoothX * 0.85 + x * 0.15;
+  smoothY = smoothY * 0.85 + y * 0.15;
+  
+  card.style.transform = `
+    rotateX(${-smoothX}deg)
+    rotateY(${smoothY}deg)
+  `;
+});
+  window.addEventListener("devicemotion", (e) => {
+    let acc = e.accelerationIncludingGravity;
+
+    if (!lastX) {
+      lastX = acc.x;
+      lastY = acc.y;
+      lastZ = acc.z;
+      return;
+    }
+
+    let delta =
+      Math.abs(acc.x - lastX) +
+      Math.abs(acc.y - lastY) +
+      Math.abs(acc.z - lastZ);
+
+    if (delta > 35 && Date.now() - lastTime > 1500) {
+      lastTime = Date.now();
+
+      createConfetti();
+
+      confetti({
+        particleCount: 120,
+        spread: 90,
+        origin: { y: 0.5 }
+      });
+
+      index = (index + 1) % images.length;
+      img.src = images[index];
+    }
+
+    lastX = acc.x;
+    lastY = acc.y;
+    lastZ = acc.z;
+  });
+}
+
+// start button
+btn.addEventListener("click", async () => {
+  try {
+    if (typeof DeviceMotionEvent.requestPermission === "function") {
+      await DeviceMotionEvent.requestPermission();
+      await DeviceOrientationEvent.requestPermission();
+    }
+    startSensors();
+  } catch {
+    alert("İcazə verilmədi");
+  }
+});
+
+// safety
+document.addEventListener("contextmenu", e => e.preventDefault());
+document.addEventListener("touchstart", e => {
+  if (e.touches.length > 1) e.preventDefault();
+}, { passive: false });
+
+</script>
+
+</body>
+</html>
