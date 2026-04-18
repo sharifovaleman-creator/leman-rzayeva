@@ -53,7 +53,7 @@ body {
 
 .card::before {
   content: "";
-  position: absolute;
+  position: relative;
   inset: 0;
   border-radius: 20px;
   transform: translateZ(30px);
@@ -66,10 +66,12 @@ img {
 
 .text {
   position: absolute;
-  top: 15%;
+  bottom: 100%;              /* card-ın üstü */
+  margin-bottom: 12px;       /* 10-15px məsafə */
 
   width: 100%;
   text-align: center;
+
   font-size: 26px;
   font-weight: bold;
   text-shadow: 0 0 10px black;
@@ -77,9 +79,8 @@ img {
   opacity: 0;
   transition: 0.9s ease;
 
-  transform: translateX(-30px) translateY(-150%) translateZ(40px);
-}
-button {
+  transform: translateX(-30px) translateZ(40px);
+}button {
   margin-top: 15px;
   padding: 12px 28px;
   border-radius: 14px;
@@ -114,12 +115,10 @@ button {
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
-<div class="text" id="textBox"></div>
-
 <div class="card" id="card">
+  <div class="text" id="textBox"></div>
   <img id="img" src="ftpxs.png">
 </div>
-
 <button id="startBtn">🎂 Start Party</button>
 
 <audio id="music" src="yasmuzik.mp3"></audio>
