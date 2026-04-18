@@ -1,112 +1,126 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <style>
-    body {
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
   width: 100%;
   height: 100vh;
   margin: 0;
   padding: 0;
-  
+
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  
-  perspective: 700px;
-  
+
+  perspective: 800px;
+
   color: white;
   font-family: sans-serif;
-  
-  overflow: hidden;
-  
+
+  overflow-x: hidden;
+  overflow-y: hidden;
+
   background: url("bg.jpg") center/cover no-repeat;
   position: relative;
-  
+
   touch-action: none;
   user-select: none;
-  -webkit-user-select: none;
-  -webkit-touch-callout: none;
 }
-    .card, button {
-      position: relative;
-      z-index: 1;
-    }
 
-    .card {
-      transition: transform 0.05s linear;
-will-change: transform;
-  width: 100%;
+.card, button {
+  position: relative;
+  z-index: 1;
+}
+
+.card {
+  width: 300px;
+  max-width: 90%;
+
   border-radius: 20px;
-  
+
   display: flex;
   justify-content: center;
   align-items: center;
-  
+
   transform-style: preserve-3d;
-  position: relative;
-transform-style: preserve-3d;
-  transform-origin: center;
+  transition: transform 0.05s linear;
+  will-change: transform;
+
 }
-    img {
-      width: 100%;
-      border-radius: 20px;
-    }
 
-    .text {
-      position: absolute;
-      top: 40px;
-      width: 100%;
-      text-align: center;
-      font-size: 36px;
-      font-weight: bold;
-      text-shadow: 0 0 10px black;
-      opacity: 0;
-      transform: translateX(-30px);
-      transition: 0.6s ease;
-  left: 0;
-  right: 0;
-  transform: translateZ(40px); /* 🔥 3D effekt fix */
-    }
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  transform: translateZ(30px);
+}
 
-    button {
-      margin-top: 10px;
-      padding: 12px 28px;
-      border-radius: 14px;
-      background: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,255,255,0.3);
-      color: white;
-      font-size: 32px;
-      cursor: pointer;
-      backdrop-filter: blur(10px);
-    }
+img {
+  width: 100%;
+  border-radius: 20px;
+}
 
-    .confetti {
-      position: absolute;
-      top: -20px;
-      font-size: 24px;
-      animation: fall linear forwards;
-    }
+.text {
+  position: absolute;
+  top: 20px;
+  width: 100%;
+  text-align: center;
+  font-size: 26px;
+  font-weight: bold;
+  text-shadow: 0 0 10px black;
 
-    @keyframes fall {
-      to {
-        transform: translateY(110vh) rotate(360deg);
-        opacity: 0;
-      }
-    }
-  </style>
+  opacity: 0;
+  transition: 0.6s ease;
+
+  transform: translateX(-30px) translateZ(40px);
+}
+
+button {
+  margin-top: 15px;
+  padding: 12px 28px;
+  border-radius: 14px;
+
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.3);
+
+  color: white;
+  font-size: 22px;
+  cursor: pointer;
+
+  backdrop-filter: blur(10px);
+}
+
+.confetti {
+  position: absolute;
+  top: -20px;
+  font-size: 24px;
+  animation: fall linear forwards;
+}
+
+@keyframes fall {
+  to {
+    transform: translateY(110vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+</style>
 </head>
 
 <body>
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
-  <div class="text" id="textBox"></div>
+<div class="text" id="textBox"></div>
+
 <div class="card" id="card">
   <img id="img" src="ftpxs.png">
 </div>
 
-<button id="startBtn">Start</button>
+<button id="startBtn">🎂 Start Party</button>
 
 <audio id="music" src="yasmuzik.mp3"></audio>
 
@@ -130,18 +144,17 @@ const lines = [
   "🎉 Yeni yaşın uğurla gəlsin, Ləman! 🎂",
   "Bu gün sənin günündür — hər şey daha parlaq 💫",
   "Arzu et, gül, əylən… 🚀",
-  " telefonu silkələ 😄",
+  "Telefonu silkələ 😄",
   "Happy Birthday! 🖤"
 ];
 
 let i = 0;
 
-// clamp
 function clamp(v, min, max) {
   return Math.max(min, Math.min(max, v));
 }
 
-// emoji confetti
+// 🎊 confetti emoji
 function createConfetti() {
   const emojis = ["🎈", "💖", "✨", "🎉"];
 
@@ -157,72 +170,65 @@ function createConfetti() {
   }
 }
 
-// text system
+// ✨ text animasiya
 function showText() {
   if (i >= lines.length) return;
 
   textBox.style.opacity = 0;
-  textBox.style.transform = "translateX(-30px)";
+  textBox.style.transform = "translateX(-30px) translateZ(40px)";
 
   setTimeout(() => {
     textBox.innerText = lines[i];
     textBox.style.opacity = 1;
-    textBox.style.transform = "translateX(0)";
+    textBox.style.transform = "translateX(0) translateZ(40px)";
     i++;
     setTimeout(showText, 2500);
   }, 400);
 }
 
-// sensors
+// 🎯 sensorlar
 function startSensors() {
-  
-  music.play();
+  music.play().catch(() => {});
   btn.style.display = "none";
-  
   showText();
-  
-  // 🔥 calibration (ən vacib hissə)
+
   let baseBeta = null;
   let baseGamma = null;
-  
-window.addEventListener("deviceorientation", (e) => {
-  let beta = e.beta;
-  let gamma = e.gamma;
-  
-  if (beta === null || gamma === null) return;
-  
-  if (baseBeta === null) {
-    baseBeta = beta;
-    baseGamma = gamma;
-  }
-  
-  let maxTilt = 25;
-  
-  let x, y;
-  
-  // 🔥 MAIN FIX: orientation detection
-  if (window.innerWidth > window.innerHeight) {
-    // 📱 horizontal (landscape)
-    x = clamp(gamma - baseGamma, -maxTilt, maxTilt);
-    y = clamp(beta - baseBeta, -maxTilt, maxTilt);
-  } else {
-    // 📱 vertical (portrait)
-    x = clamp(beta - baseBeta, -maxTilt, maxTilt);
-    y = clamp(gamma - baseGamma, -maxTilt, maxTilt);
-  }
-  
-  smoothX = smoothX * 0.85 + x * 0.15;
-  smoothY = smoothY * 0.85 + y * 0.15;
-  
-  card.style.transform = `
-    rotateX(${-smoothX}deg)
-    rotateY(${smoothY}deg)
-  `;
-});
+
+  window.addEventListener("deviceorientation", (e) => {
+    if (e.beta === null || e.gamma === null) return;
+
+    if (baseBeta === null) {
+      baseBeta = e.beta;
+      baseGamma = e.gamma;
+    }
+
+    let maxTilt = 25;
+    let x, y;
+
+    if (window.innerWidth > window.innerHeight) {
+      x = clamp(e.gamma - baseGamma, -maxTilt, maxTilt);
+      y = clamp(e.beta - baseBeta, -maxTilt, maxTilt);
+    } else {
+      x = clamp(e.beta - baseBeta, -maxTilt, maxTilt);
+      y = clamp(e.gamma - baseGamma, -maxTilt, maxTilt);
+    }
+
+    smoothX = smoothX * 0.85 + x * 0.15;
+    smoothY = smoothY * 0.85 + y * 0.15;
+
+    card.style.transform = `
+      rotateX(${-smoothX}deg)
+      rotateY(${smoothY}deg)
+      translateZ(10px)
+    `;
+  });
+
   window.addEventListener("devicemotion", (e) => {
     let acc = e.accelerationIncludingGravity;
+    if (!acc) return;
 
-    if (!lastX) {
+    if (lastX === undefined) {
       lastX = acc.x;
       lastY = acc.y;
       lastZ = acc.z;
@@ -234,7 +240,7 @@ window.addEventListener("deviceorientation", (e) => {
       Math.abs(acc.y - lastY) +
       Math.abs(acc.z - lastZ);
 
-    if (delta > 35 && Date.now() - lastTime > 1500) {
+    if (delta > 20 && Date.now() - lastTime > 1500) {
       lastTime = Date.now();
 
       createConfetti();
@@ -255,25 +261,30 @@ window.addEventListener("deviceorientation", (e) => {
   });
 }
 
-// start button
+// 🎂 start
 btn.addEventListener("click", async () => {
   try {
-    if (typeof DeviceMotionEvent.requestPermission === "function") {
+    if (typeof DeviceMotionEvent !== "undefined" &&
+        typeof DeviceMotionEvent.requestPermission === "function") {
       await DeviceMotionEvent.requestPermission();
+    }
+
+    if (typeof DeviceOrientationEvent !== "undefined" &&
+        typeof DeviceOrientationEvent.requestPermission === "function") {
       await DeviceOrientationEvent.requestPermission();
     }
+
     startSensors();
   } catch {
-    alert("İcazə verilmədi");
+    alert("İcazə verilmədi 😢");
   }
 });
 
-// safety
+// 🔒 safety
 document.addEventListener("contextmenu", e => e.preventDefault());
 document.addEventListener("touchstart", e => {
   if (e.touches.length > 1) e.preventDefault();
 }, { passive: false });
-
 </script>
 
 </body>
