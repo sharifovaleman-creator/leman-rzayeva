@@ -20,8 +20,7 @@ body {
   color: white;
   font-family: sans-serif;
 
-  overflow-x: hidden;
-  overflow-y: hidden;
+  overflow: hidden;
 
   background: url("bg.jpg") center/cover no-repeat;
   position: relative;
@@ -38,7 +37,6 @@ body {
 .card {
   width: 300px;
   max-width: 90%;
-
   border-radius: 20px;
 
   display: flex;
@@ -47,16 +45,6 @@ body {
 
   transform-style: preserve-3d;
   transition: transform 0.05s linear;
-  will-change: transform;
-
-}
-
-.card::before {
-  content: "";
-  position: relative;
-  inset: 0;
-  border-radius: 20px;
-  transform: translateZ(30px);
 }
 
 img {
@@ -66,8 +54,8 @@ img {
 
 .text {
   position: absolute;
-  bottom: 100%;              /* card-ın üstü */
-  margin-bottom: 12px;       /* 10-15px məsafə */
+  bottom: 100%;
+  margin-bottom: 12px;
 
   width: 100%;
   text-align: center;
@@ -80,7 +68,9 @@ img {
   transition: 0.9s ease;
 
   transform: translateX(-30px) translateZ(40px);
-}button {
+}
+
+button {
   margin-top: 15px;
   padding: 12px 28px;
   border-radius: 14px;
@@ -109,24 +99,21 @@ img {
   }
 }
 
-/* ❤️ heartbeat animasiya */
 .heartbeat {
   animation: beat 0.6s ease 4;
 }
 
 @keyframes beat {
-  0%   { transform: scale(1); }
-  25%  { transform: scale(1.3); }
-  50%  { transform: scale(1); }
-  75%  { transform: scale(1.3); }
+  0% { transform: scale(1); }
+  25% { transform: scale(1.3); }
+  50% { transform: scale(1); }
+  75% { transform: scale(1.3); }
   100% { transform: scale(1); }
 }
 
-/* 🌧️ arxa fon axan text */
 .floating-text {
   position: absolute;
   top: -30px;
-
   left: 50%;
   transform: translateX(-50%);
 
@@ -153,17 +140,12 @@ img {
     transform: translate(-50%, -40px) scale(0.8);
     opacity: 0;
   }
-
-  20% {
-    opacity: 1;
-  }
-
+  20% { opacity: 1; }
   100% {
-    transform: translate(calc(-50% + var(--drift)), 110vh) scale(1.1);
+    transform: translate(calc(-50% + var(--drift)), 100vh) scale(1.1);
     opacity: 0;
   }
 }
-
 </style>
 </head>
 
@@ -175,8 +157,8 @@ img {
   <div class="text" id="textBox"></div>
   <img id="img" src="ftpxs.png">
 </div>
-<button id="startBtn">🎂 Start Party</button>
 
+<button id="startBtn">🎂 Start Party</button>
 <audio id="music" src="yasmuzik.mp3"></audio>
 
 <script>
@@ -186,7 +168,7 @@ const btn = document.getElementById("startBtn");
 const music = document.getElementById("music");
 const textBox = document.getElementById("textBox");
 
-const images = ["ftpxs2.png","ftpxs1.png", "ftpxs.png"];
+const images = ["ftpxs2.png","ftpxs1.png","ftpxs.png"];
 let index = 0;
 
 let smoothX = 0;
@@ -209,9 +191,8 @@ function clamp(v, min, max) {
   return Math.max(min, Math.min(max, v));
 }
 
-// 🎊 confetti emoji
 function createConfetti() {
-  const emojis = ["🎈", "💖", "✨", "🎉"];
+  const emojis = ["🎈","💖","✨","🎉"];
 
   for (let i = 0; i < 50; i++) {
     let c = document.createElement("div");
@@ -225,7 +206,6 @@ function createConfetti() {
   }
 }
 
-// ✨ text animasiya
 function showText() {
   if (i >= lines.length) return;
 
@@ -241,9 +221,7 @@ function showText() {
   }, 400);
 }
 
-// 🎯 sensorlar
 function startSensors() {
-  music.play().catch(() => {});
   btn.style.display = "none";
   showText();
 
@@ -258,16 +236,8 @@ function startSensors() {
       baseGamma = e.gamma;
     }
 
-    let maxTilt = 25;
-    let x, y;
-
-    if (window.innerWidth > window.innerHeight) {
-      x = clamp(e.gamma - baseGamma, -maxTilt, maxTilt);
-      y = clamp(e.beta - baseBeta, -maxTilt, maxTilt);
-    } else {
-      x = clamp(e.beta - baseBeta, -maxTilt, maxTilt);
-      y = clamp(e.gamma - baseGamma, -maxTilt, maxTilt);
-    }
+    let x = clamp(e.beta - baseBeta, -25, 25);
+    let y = clamp(e.gamma - baseGamma, -25, 25);
 
     smoothX = smoothX * 0.85 + x * 0.15;
     smoothY = smoothY * 0.85 + y * 0.15;
@@ -275,7 +245,6 @@ function startSensors() {
     card.style.transform = `
       rotateX(${-smoothX}deg)
       rotateY(${smoothY}deg)
-      translateZ(10px)
     `;
   });
 
@@ -316,45 +285,34 @@ function startSensors() {
   });
 }
 
-// 🎂 start
 btn.addEventListener("click", async () => {
   try {
-    if (typeof DeviceMotionEvent !== "undefined" &&
-        typeof DeviceMotionEvent.requestPermission === "function") {
+    await music.play();
+  } catch {}
+
+  try {
+    if (typeof DeviceMotionEvent?.requestPermission === "function") {
       await DeviceMotionEvent.requestPermission();
     }
-
-    if (typeof DeviceOrientationEvent !== "undefined" &&
-        typeof DeviceOrientationEvent.requestPermission === "function") {
+    if (typeof DeviceOrientationEvent?.requestPermission === "function") {
       await DeviceOrientationEvent.requestPermission();
     }
+  } catch {}
 
-    startSensors();
-  } catch {
-    alert("İcazə verilmədi 😢");
-  }
+  startSensors();
 });
 
-// 🔒 safety
-document.addEventListener("contextmenu", e => e.preventDefault());
-document.addEventListener("touchstart", e => {
-  if (e.touches.length > 1) e.preventDefault();
-}, { passive: false });
-
-// ❤️ click detect
 textBox.addEventListener("click", () => {
   if (!textBox.innerText.includes("❤️")) return;
-  
-  // 💓 heartbeat
+
   textBox.classList.add("heartbeat");
-  
+
   setTimeout(() => {
     textBox.classList.remove("heartbeat");
     startFloatingTexts();
   }, 2500);
 });
 
-// 🌧️ arxa fonda text yağışı
 function startFloatingTexts() {
   const messages = [
     "Ləman ❤️",
@@ -364,32 +322,23 @@ function startFloatingTexts() {
     "Gül həmişə 😄",
     "Sevilirsən 💖"
   ];
-  
-  let count = Math.floor(Math.random() * 6) + 5; // 5-10 arası
 
-for (let i = 0; i < count; i++) {
-  let t = document.createElement("div");
-  t.className = "floating-text";
-  t.innerText = messages[Math.floor(Math.random() * messages.length)];
+  let count = Math.floor(Math.random() * 6) + 5;
 
-  // 🔥 həmişə mərkəzdən başlasın
-  t.style.left = "50%";
+  for (let i = 0; i < count; i++) {
+    let t = document.createElement("div");
+    t.className = "floating-text";
+    t.innerText = messages[Math.floor(Math.random() * messages.length)];
 
-  // 🔥 sola-sağa az drift (kənara daşmadan)
-  let drift = (Math.random() * 120 - 60) + "px";
-  t.style.setProperty("--drift", drift);
+    t.style.setProperty("--drift", (Math.random() * 120 - 60) + "px");
+    t.style.animationDuration = (3 + Math.random() * 2) + "s";
+    t.style.animationDelay = (Math.random() * 0.8) + "s";
+    t.style.fontSize = (16 + Math.random() * 10) + "px";
 
-  // 🔥 fərqli sürətlər (daha real hiss)
-  t.style.animationDuration = (3 + Math.random() * 2) + "s";
-
-  // 🔥 gecikmə (hamısı eyni anda düşməsin)
-  t.style.animationDelay = (Math.random() * 0.8) + "s";
-
-  document.body.appendChild(t);
-
-  setTimeout(() => t.remove(), 7000);
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 7000);
+  }
 }
-
 </script>
 
 </body>
