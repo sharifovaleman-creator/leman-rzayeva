@@ -125,17 +125,41 @@ img {
 /* 🌧️ arxa fon axan text */
 .floating-text {
   position: absolute;
-  top: -20px;
+  top: -30px;
+
+  left: 50%;
+  transform: translateX(-50%);
+
   color: white;
-  font-size: 18px;
-  opacity: 0.8;
-  animation: fallText linear forwards;
+  font-size: 20px;
+  font-weight: bold;
+
+  padding: 6px 12px;
+  border-radius: 12px;
+
+  background: rgba(0,0,0,0.25);
+  backdrop-filter: blur(6px);
+
+  text-shadow: 0 0 10px rgba(0,0,0,0.6);
+
+  opacity: 0;
+
+  animation: fallText 4s ease-in forwards;
   pointer-events: none;
 }
 
 @keyframes fallText {
-  to {
-    transform: translateY(110vh);
+  0% {
+    transform: translate(-50%, -40px) scale(0.8);
+    opacity: 0;
+  }
+
+  20% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(calc(-50% + var(--drift)), 110vh) scale(1.1);
     opacity: 0;
   }
 }
@@ -342,19 +366,29 @@ function startFloatingTexts() {
   ];
   
   let count = Math.floor(Math.random() * 6) + 5; // 5-10 arası
-  
-  for (let i = 0; i < count; i++) {
-    let t = document.createElement("div");
-    t.className = "floating-text";
-    t.innerText = messages[Math.floor(Math.random() * messages.length)];
-    
-    t.style.left = Math.random() * 100 + "vw";
-    t.style.animationDuration = (3 + Math.random() * 4) + "s";
-    
-    document.body.appendChild(t);
-    
-    setTimeout(() => t.remove(), 7000);
-  }
+
+for (let i = 0; i < count; i++) {
+  let t = document.createElement("div");
+  t.className = "floating-text";
+  t.innerText = messages[Math.floor(Math.random() * messages.length)];
+
+  // 🔥 həmişə mərkəzdən başlasın
+  t.style.left = "50%";
+
+  // 🔥 sola-sağa az drift (kənara daşmadan)
+  let drift = (Math.random() * 120 - 60) + "px";
+  t.style.setProperty("--drift", drift);
+
+  // 🔥 fərqli sürətlər (daha real hiss)
+  t.style.animationDuration = (3 + Math.random() * 2) + "s";
+
+  // 🔥 gecikmə (hamısı eyni anda düşməsin)
+  t.style.animationDelay = (Math.random() * 0.8) + "s";
+  t.style.fontSize = (16 + Math.random() * 10) + "px";
+
+  document.body.appendChild(t);
+
+  setTimeout(() => t.remove(), 7000);
 }
 
 </script>
